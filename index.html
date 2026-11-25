@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>نووا — دستیار اکشن‌پلن</title>
+<meta name="theme-color" content="#f5f7fb">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<script src="config.js"></script><script src="db.js"></script>
+<style>
+/* NOVA / پوراویژن — mobile-first RTL app. Tokens per theme; layout: centered column, floating bottom nav. */
+:root,[data-theme="light"]{
+  --bg:#f5f7fb;--bg2:#eef3ff;--card:#fff;--soft:#f1f3f6;--line:#e1e5ea;--fg:#0f172a;--muted:#667385;
+  --ac:#2a6cf0;--ac2:#2065e6;--acfg:#fff;--acsoft:#e8f0ff;--actext:#1d57c9;
+  --ok:#15803d;--okbg:#dcfce7;--warn:#a05a00;--warnbg:#fff0cc;--bad:#c62828;--badbg:#ffe1e1;--info:#0369a1;--infobg:#d7f0ff;--orange:#b4410b;--orangebg:#ffe4d3;--gray:#475569;--graybg:#e3e8ef;
+  --shadow:0 6px 24px rgba(30,60,120,.08);--navbg:rgba(255,255,255,.96);--logo-bg:transparent;color-scheme:light}
+[data-theme="dark"]{
+  --bg:#0c1016;--bg2:#10161f;--card:#151b24;--soft:#1d2530;--line:#273141;--fg:#e9eef5;--muted:#8d9bb0;
+  --ac:#4a8cf7;--ac2:#3b7be6;--acfg:#06101f;--acsoft:rgba(74,140,247,.16);--actext:#9cc2ff;
+  --ok:#5fd28b;--okbg:rgba(95,210,139,.15);--warn:#f0b955;--warnbg:rgba(240,185,85,.15);--bad:#ff8c85;--badbg:rgba(255,140,133,.15);--info:#6fc6f5;--infobg:rgba(111,198,245,.15);--orange:#ff9f6b;--orangebg:rgba(255,159,107,.15);--gray:#aab6c6;--graybg:rgba(170,182,198,.15);
+  --shadow:0 6px 24px rgba(0,0,0,.45);--navbg:rgba(21,27,36,.96);--logo-bg:#fff;color-scheme:dark}
+[data-theme="blue"]{
+  --bg:#0a192f;--bg2:#0d2140;--card:#112240;--soft:#1a3257;--line:#233f66;--fg:#e8f1ff;--muted:#8fa6c7;
+  --ac:#38bdf8;--ac2:#0ea5e9;--acfg:#04283a;--acsoft:rgba(56,189,248,.16);--actext:#8dd8fb;
+  --ok:#5fe0a0;--okbg:rgba(95,224,160,.15);--warn:#f5c26b;--warnbg:rgba(245,194,107,.15);--bad:#ff9a94;--badbg:rgba(255,154,148,.15);--info:#7fd0f7;--infobg:rgba(127,208,247,.15);--orange:#ffab7a;--orangebg:rgba(255,171,122,.15);--gray:#b0c0d8;--graybg:rgba(176,192,216,.15);
+  --shadow:0 6px 24px rgba(0,0,0,.4);--navbg:rgba(17,34,64,.96);--logo-bg:#fff;color-scheme:dark}
+[data-theme="pink"]{
+  --bg:#fdf3f8;--bg2:#fde8f2;--card:#fff;--soft:#faeaf2;--line:#f1d3e2;--fg:#2a1020;--muted:#8a6578;
+  --ac:#d81b6a;--ac2:#c0165d;--acfg:#fff;--acsoft:#fde0ee;--actext:#b0125a;
+  --ok:#15803d;--okbg:#dcfce7;--warn:#a05a00;--warnbg:#fff0cc;--bad:#c62828;--badbg:#ffe1e1;--info:#0369a1;--infobg:#d7f0ff;--orange:#b4410b;--orangebg:#ffe4d3;--gray:#5b4a53;--graybg:#f1e4ea;
+  --shadow:0 6px 24px rgba(180,30,100,.10);--navbg:rgba(255,255,255,.96);--logo-bg:transparent;color-scheme:light}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Vazirmatn','Vazir','IRANSansX','IRANSans',Tahoma,system-ui,sans-serif;font-size:15px;line-height:1.7;min-height:100vh}
+body.lock{overflow:hidden}
+.bgfx{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,var(--bg2),var(--bg) 40%)}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i.sm{width:18px;height:18px}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+
+/* ---- top bar ---- */
+header.top{max-width:1100px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px 4px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.logo{width:48px;height:48px;border-radius:17px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--acfg);display:grid;place-items:center;font-weight:800;font-size:23px;box-shadow:0 8px 18px -8px var(--ac);flex:none}
+.brand h1{margin:0;font-size:20px;font-weight:800;line-height:1.3}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+.ibtn{width:44px;height:44px;min-height:44px;padding:0;border-radius:15px;border:1.5px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--fg);cursor:pointer}
+main{max-width:1100px;margin:0 auto;padding:10px 16px 16px}
+
+/* ---- chips / cards ---- */
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 12px;font-size:13px;font-weight:700;background:var(--soft);color:var(--gray);min-height:30px;white-space:nowrap}
+.chip.acc{background:var(--acsoft);color:var(--actext)}.chip.ok{background:var(--okbg);color:var(--ok)}.chip.warn{background:var(--warnbg);color:var(--warn)}.chip.bad{background:var(--badbg);color:var(--bad)}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:24px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.section-card{padding:0;overflow:hidden}
+.accordion{width:100%}
+.accordion>summary{list-style:none;display:flex;align-items:center;gap:13px;padding:16px 18px;cursor:pointer;user-select:none;min-height:78px}
+.accordion>summary::-webkit-details-marker{display:none}
+.accordion>summary:after{content:"";flex:0 0 9px;width:9px;height:9px;border-left:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);margin-inline-start:4px;margin-top:-5px;transition:transform .2s}
+.accordion[open]>summary:after{transform:rotate(135deg);margin-top:5px}
+.accordion[open]>summary{border-bottom:1.5px solid var(--line)}
+.accordion-panel{padding:18px}
+.section-icon{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:16px;font-size:17px;font-weight:800;background:var(--acsoft);color:var(--actext)}
+.section-icon.mint{background:var(--okbg);color:var(--ok)}.section-icon.lavender{background:var(--infobg);color:var(--info)}.section-icon.sky{background:var(--acsoft);color:var(--actext)}
+.summary-copy{display:flex;flex-direction:column;min-width:0}
+.summary-copy strong{font-size:15.5px;font-weight:800}
+.summary-copy small{color:var(--muted);font-size:12px}
+label.f{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.spacer{margin-inline-start:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hint{color:var(--muted);font-size:12.5px;margin:8px 0 0}
+.count{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+.err{color:var(--bad);font-size:13px;margin-top:8px;white-space:pre-line}
+.warn{background:var(--warnbg);color:var(--warn);border-radius:16px;padding:11px 14px;margin-top:12px;font-size:13.5px}
+.warn ul{margin:4px 0 0;padding-inline-start:20px}
+.banner{max-width:1100px;margin:6px auto 0;width:calc(100% - 32px)}
+.star{color:var(--warn)}
+.nova{background:linear-gradient(120deg,var(--acsoft),var(--infobg));border-radius:18px;padding:14px 16px;margin-bottom:14px}
+.nova b{color:var(--actext)}
+
+/* ---- controls ---- */
+input,select,textarea{width:100%;min-height:48px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);padding:9px 14px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 4px var(--acsoft)}
+input:disabled,textarea:disabled{background:var(--soft);color:var(--muted)}
+textarea{min-height:92px;resize:vertical}
+input[type=checkbox]{width:auto;min-height:0;accent-color:var(--ac)}
+button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:6px 16px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);font-weight:700;cursor:pointer;transition:transform .08s,filter .15s}
+button:active:not(:disabled){transform:scale(.97)}
+button:disabled{opacity:.45;cursor:default}
+button.primary{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--acfg);border-color:transparent;box-shadow:0 8px 18px -10px var(--ac)}
+button.danger{color:var(--bad)}
+button.okb{background:var(--okbg);color:var(--ok);border-color:transparent}
+.days{display:flex;flex-wrap:wrap;gap:8px}
+.days label{display:flex;gap:6px;align-items:center;border:1.5px solid var(--line);border-radius:14px;padding:6px 12px;background:var(--card);cursor:pointer}
+
+/* ---- tables ---- */
+.tablewrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:18px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--soft);color:var(--muted);font-size:12.5px;font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tbody tr:hover:not(.dayhead){background:var(--soft)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+td.addr{color:var(--muted);font-size:13px;min-width:240px}
+tr.dayhead td{background:var(--acsoft);font-weight:800;color:var(--actext)}
+button.nm{min-height:0;padding:0;border:0;background:none;border-radius:6px;color:var(--actext);font-weight:800;text-align:right;display:inline;text-decoration:underline dotted;text-underline-offset:5px;cursor:pointer}
+button.nm:hover{color:var(--ac)}
+
+.regions{max-height:250px;overflow:auto;border:1.5px solid var(--line);border-radius:18px;padding:7px 12px;background:var(--card)}
+.regions details{border-bottom:1px solid var(--line);padding:4px 0}
+.regions details:last-child{border-bottom:0}
+.regions summary{cursor:pointer;display:flex;align-items:center;gap:8px;padding:4px 0;font-weight:700}
+.regions .chips{display:flex;flex-wrap:wrap;gap:7px;padding:5px 0 9px}
+.regions .chips label{display:flex;gap:5px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:4px 10px;background:var(--card);cursor:pointer;font-size:13.5px}
+.regions .chips label:has(input:checked){border-color:var(--ac);background:var(--acsoft)}
+
+/* ---- dock ---- */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom));width:min(528px,calc(100% - 20px));background:var(--navbg);border:1.5px solid var(--line);border-radius:30px;box-shadow:0 10px 34px rgba(20,40,90,.18);padding:8px;display:flex;justify-content:space-between;gap:2px;z-index:20;backdrop-filter:blur(10px)}
+.nav button{flex:1;min-width:0;border:0;background:none;border-radius:22px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-weight:700;font-size:12.5px;min-height:56px;position:relative;box-shadow:none}
+.nav button.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--acfg);flex:1.25}
+.badge{position:absolute;top:2px;right:18%;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;display:grid;place-items:center;font-weight:800}
+
+/* ---- sheets / dialogs ---- */
+.ov{position:fixed;inset:0;background:rgba(8,12,20,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+.ov.mid{align-items:center;padding:16px;z-index:60}
+.sheet{background:var(--card);width:100%;max-width:640px;border-radius:30px 30px 0 0;padding:14px 18px max(24px,env(safe-area-inset-bottom));max-height:92vh;overflow:auto;animation:up .2s;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+.ov.mid .sheet{border-radius:28px;max-height:88vh}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.shead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.avatar{width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--acfg);display:grid;place-items:center;font-weight:800;font-size:22px;flex:none}
+.shead h2{margin:0;font-size:18px;font-weight:800;line-height:1.4}
+.shead .sub{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.shead .x{margin-inline-start:auto}
+.kv{display:grid;gap:8px}
+.kv .it{background:var(--soft);border-radius:16px;padding:9px 14px}
+.kv .it small{display:block;color:var(--muted);font-size:12px;font-weight:700}
+.kv .it div{word-break:break-word}
+.fld{margin-bottom:12px}
+.fld .lk{color:var(--muted);font-size:11.5px;margin-inline-start:6px}
+.sbar{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.sbar button{flex:1;min-height:50px}
+.diff{display:grid;gap:8px;margin:10px 0}
+.diff .d{background:var(--soft);border-radius:16px;padding:9px 14px}
+.diff .d b{display:block;font-size:13px}
+.diff .old{color:var(--bad);text-decoration:line-through;word-break:break-word}
+.diff .nw{color:var(--ok);font-weight:700;word-break:break-word}
+.hist{margin-top:14px}
+.hist h3{font-size:14px;margin:0 0 6px}
+.vgroup{border:1.5px solid var(--line);border-radius:20px;margin-bottom:10px;overflow:hidden;background:var(--card)}
+.vgroup>summary{list-style:none;display:flex;gap:10px;align-items:center;padding:12px 16px;cursor:pointer;flex-wrap:wrap}
+.vgroup>summary::-webkit-details-marker{display:none}
+.vgroup .vb{padding:4px 16px 12px}
+.vgroup .vr{border-top:1px solid var(--line);padding:8px 0;font-size:14px}
+.vr .old{color:var(--bad);text-decoration:line-through}.vr .nw{color:var(--ok);font-weight:700}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.stat .s{background:var(--soft);border-radius:18px;padding:10px 14px}
+.stat .s b{display:block;font-size:22px;line-height:1.3}
+.stat .s small{color:var(--muted);font-weight:700}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:100px;background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:16px;font-weight:700;z-index:90;max-width:calc(100% - 32px);box-shadow:var(--shadow);animation:fade .15s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+
+.summary-state{display:none}
+
+/* ---- drawer list ---- */
+.dlist{display:grid;gap:10px}
+.dr{background:var(--card);border:1.5px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+.dh{width:100%;display:flex;align-items:center;justify-content:flex-start;gap:8px;flex-wrap:wrap;border:0;background:none;border-radius:0;min-height:56px;padding:10px 14px;text-align:right;box-shadow:none}
+.dh:active:not(:disabled){transform:none}
+.dh .n{font-weight:800;flex:1 1 170px;text-align:right}
+.chev{width:9px;height:9px;border-left:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);margin-inline-start:auto;margin-top:-4px;transition:transform .2s,margin .2s}
+.dr.open .chev{transform:rotate(135deg);margin-top:4px}
+.dr.open .dh{border-bottom:1.5px solid var(--line)}
+.dbd{display:none;padding:12px 14px 14px}.dr.open .dbd{display:block}
+.dbd .kv{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.dbd .kv .it:nth-child(4){grid-column:1/-1}
+.nl{margin-top:12px}.nl small{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.lnk{display:inline-flex;align-items:center;min-height:38px;padding:4px 14px;border-radius:14px;border:1.5px solid var(--line);color:var(--actext);font-weight:700;text-decoration:none;background:var(--card)}
+.logo{object-fit:cover;background:#000}
+@media (max-width:720px){#tab-db .grid{grid-template-columns:1fr 1fr}#tab-db .grid #q{grid-column:1/-1}#tab-db select{min-height:44px;padding:6px 10px;font-size:14px}}
+
+/* ---- footer ---- */
+.foot{max-width:1100px;margin:0 auto;padding:6px 16px 128px;text-align:center}
+.fbbtn{display:block;width:100%;max-width:520px;margin:0 auto 10px;padding:5px 12px;min-height:30px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;text-decoration:none;opacity:.8;transition:opacity .15s,border-color .15s,color .15s}
+.fbbtn:hover,.fbbtn:focus-visible{opacity:1;border-color:var(--ac);color:var(--actext)}
+.copy{color:var(--muted);font-size:12px;direction:ltr;unicode-bidi:plaintext}
+@media print{.fbbtn{display:none}.foot{padding-bottom:0}}
+@media (max-width:720px){
+  main{padding:8px 12px 16px}
+  .grid{grid-template-columns:1fr}
+  .spacer{margin-inline-start:0;width:100%}
+  .spacer button{flex:1 1 auto}
+  .summary-copy strong{font-size:14px}.summary-copy small{font-size:11px}
+  .accordion-panel{padding:14px 12px}
+  .cardtbl{min-width:0}
+  .cardtbl thead{display:none}
+  .cardtbl,.cardtbl tbody,.cardtbl tr,.cardtbl td{display:block;width:100%}
+  .tablewrap:has(.cardtbl){border:0;background:none}
+  .cardtbl tr{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:10px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .cardtbl td{border:0;padding:2px 0;display:flex;gap:10px}
+  .cardtbl td::before{content:attr(data-l);color:var(--muted);flex:0 0 76px;font-size:12px;padding-top:2px}
+  .cardtbl td.addr{min-width:0}
+  .cardtbl td:first-child{font-size:16px}
+  .sheet{max-height:94vh}
+}
+@media print{
+  header.top,.noprint,.nav,.bgfx{display:none!important}
+  body{background:#fff;color:#000}
+  .card{border:0;padding:0;box-shadow:none}
+  table{min-width:0;font-size:11px}
+  tr{break-inside:avoid}
+  #result{display:block!important}
+}
+</style>
+</head>
+<body>
+<div class="bgfx"></div>
+<header class="top noprint">
+  <div class="brand">
+    <img class="logo" alt="" src="data:image/png;base64,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" />
+    <div><h1>نووا</h1><p id="hdrSub">دستیار هوشمند اکشن‌پلن • بدون نیاز به اینترنت</p></div>
+  </div>
+  <span class="chip acc" id="verChip"></span>
+  <button class="ibtn" id="themeBtn" title="تغییر تم" aria-label="تغییر تم"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></button>
+</header>
+<div class="warn banner noprint" id="lsWarn" hidden>ذخیره‌ی خودکار در این مرورگر در دسترس نیست (مثلاً حالت خصوصی یا محدودیت فایل). تغییرات فقط تا بستن صفحه می‌مانند؛ بعد از هر ویرایش حتماً «نسخه جدید برنامه» یا اکسل را دانلود کنید.</div>
+
+
+<main>
+<!-- ============================ دستیار ============================ -->
+<section id="tab-planner">
+  <div class="card noprint section-card">
+    <details class="accordion">
+      <summary><span class="section-icon mint">۱</span><span class="summary-copy"><strong>فهرست پزشکان مورد نظر</strong><small>ورود فایل، انتخاب پزشکان و تعیین مناطق هدف</small></span><span class="summary-state">مشاهده بخش</span></summary>
+      <div class="accordion-panel">
+    <div class="grid">
+      <div>
+        <label class="f">فایل اکسل (xlsx) یا CSV — ستون «کد نظام پزشکی» و/یا «نام پزشک»؛ ستون‌های اختیاری: «اولویت»، «روزهای حضور»</label>
+        <input id="file" type="file" accept=".xlsx,.csv,.txt,.tsv" />
+      </div>
+      <div>
+        <label class="f">یا اینجا بچسبانید (هر خط یک پزشک: کد یا نام)</label>
+        <textarea id="paste" placeholder="48219&#10;دکتر رزیتا حسینی&#10;..."></textarea>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="row">
+        <b>مناطق مورد نظر</b><span class="count">(اختیاری — چند شهر یا منطقه را می‌توانید با هم انتخاب کنید)</span>
+        <div class="spacer"><span class="count" id="regCount"></span><button id="regClear">پاک کردن انتخاب</button></div>
+      </div>
+      <input id="regSearch" type="search" placeholder="جستجوی شهر یا منطقه" style="margin:8px 0" />
+      <div id="regions" class="regions"></div>
+      <p class="hint">اگر فایل ندهید، همه پزشکان دیتابیس در مناطق انتخابی وارد پلن می‌شوند. اگر فایل بدهید، فقط پزشکان فایل که در این مناطق هستند می‌مانند. اگر هیچ منطقه‌ای انتخاب نشود، محدودیتی اعمال نمی‌شود.</p>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="primary" id="load">ساخت فهرست پزشکان</button>
+      <span class="count" id="loadInfo"></span>
+    </div>
+    <div class="err" id="loadErr"></div>
+    <div id="matchedBox" hidden>
+      <div class="row" style="margin:12px 0 8px">
+        <b>پزشکان پیدا شده — اولویت بالا را علامت بزنید</b>
+        <div class="spacer">
+          <button id="hiAll">همه اولویت بالا</button>
+          <button id="hiNone">پاک کردن اولویت‌ها</button>
+          <span class="count" id="hiCount"></span>
+        </div>
+      </div>
+      <div class="tablewrap" style="max-height:340px;overflow:auto">
+        <table style="min-width:640px">
+          <thead><tr><th>★ اولویت</th><th>نام پزشک</th><th>کد</th><th>تخصص</th><th>شهر / منطقه</th><th>آدرس</th><th>روزهای حضور</th></tr></thead>
+          <tbody id="matchedBody"></tbody>
+        </table>
+      </div>
+      <div class="warn" id="unmatchedBox" hidden></div>
+    </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="card noprint section-card">
+    <details class="accordion">
+      <summary><span class="section-icon lavender">۲</span><span class="summary-copy"><strong>بازه و قواعد برنامه</strong><small>تنظیم تاریخ، ظرفیت روزانه و محدودیت‌های ویزیت</small></span><span class="summary-state">مشاهده بخش</span></summary>
+      <div class="accordion-panel">
+    <div class="grid">
+      <div><label class="f">از تاریخ (شمسی)</label><input id="start" dir="ltr" placeholder="1405/09/10" /></div>
+      <div><label class="f">تا تاریخ (شمسی)</label><input id="end" dir="ltr" placeholder="1405/10/10" /></div>
+      <div><label class="f">تعداد ویزیت در روز</label><input id="perDay" type="number" min="1" max="30" value="5" /></div>
+      <div><label class="f">تعداد ویزیت پزشکان «اولویت بالا» در بازه</label><input id="hiRepeat" type="number" min="1" max="6" value="1" /></div>
+      <div><label class="f">حداقل فاصله بین دو ویزیت یک پزشک (روز)</label><input id="minGap" type="number" min="1" max="60" value="5" /></div>
+    </div>
+    <div style="margin-top:12px">
+      <label class="f">روزهایی که نباید در پلن باشند</label>
+      <div class="days" id="exWeekdays"></div>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <div>
+        <label class="f">تاریخ‌های خاص حذفی (مثلاً مرخصی؛ با ویرگول جدا کنید)</label>
+        <input id="exDates" dir="ltr" placeholder="1405/09/15, 1405/09/20" />
+      </div>
+      <div style="align-self:end">
+        <label class="days" style="border:0;background:none;padding:0"><span style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="exHolidays" checked /> حذف تعطیلات رسمی ثابت (نوروز، ۱۲ و ۱۳ فروردین، ۱۴ و ۱۵ خرداد، ۲۲ بهمن، ۲۹ اسفند)</span></label>
+      </div>
+    </div>
+    <p class="hint">تعطیلات قمری (تاسوعا، عاشورا، عید فطر و…) هر سال تغییر می‌کنند؛ آن‌ها را در «تاریخ‌های خاص حذفی» وارد کنید.</p>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="gen" disabled>بساز اکشن‌پلن</button>
+    </div>
+    <div class="err" id="genErr"></div>
+      </div>
+    </details>
+  </div>
+
+  <div id="result" hidden>
+    <div class="card">
+      <div class="nova" id="novaMsg"></div>
+      <div class="row noprint" style="margin-bottom:10px">
+        <button class="primary" id="xlsx">دانلود اکسل</button>
+        <button id="print">چاپ</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>#</th><th>نام پزشک</th><th>کد</th><th>تخصص</th><th>شهر / منطقه</th><th>آدرس</th><th>روزهای حضور</th><th>اولویت</th></tr></thead>
+          <tbody id="planBody"></tbody>
+        </table>
+      </div>
+      <div class="warn" id="unplannedBox" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ دیتابیس ============================ -->
+<section id="tab-db" hidden>
+  <div class="card section-card db-card">
+    <details class="accordion" open>
+      <summary><span class="section-icon sky">⌕</span><span class="summary-copy"><strong>جستجو و مرور دیتابیس پزشکان</strong><small>فیلتر بر اساس نام، کد نظام پزشکی، تخصص و موقعیت جغرافیایی</small></span><span class="summary-state">مشاهده دیتابیس</span></summary>
+      <div class="accordion-panel">
+    <div class="grid" style="margin-bottom:12px">
+      <input id="q" type="search" placeholder="جستجو: نام، کد نظام پزشکی یا آدرس" />
+      <select id="province"><option value="">همه استان‌ها</option></select>
+      <select id="city"><option value="">همه شهرها</option></select>
+      <select id="district"><option value="">همه مناطق</option></select>
+      <select id="specialty"><option value="">همه تخصص‌ها</option></select>
+      <select id="complete"><option value="">همه پزشکان</option><option value="1">فقط اطلاعات ناقص</option></select>
+    </div>
+    <div class="row" style="margin-bottom:10px">
+      <span class="count" id="count"></span>
+      <div class="spacer">
+        <button id="csv">دانلود نتیجه (CSV)</button>
+        <button id="reset">پاک کردن فیلترها</button>
+        <button id="prev">قبلی</button>
+        <span class="count" id="page"></span>
+        <button id="next">بعدی</button>
+      </div>
+    </div>
+    <div id="body" class="dlist"></div>
+    <div id="empty" class="empty" hidden>موردی پیدا نشد.</div>
+    <p class="hint">روی نام هر پزشک بزنید تا اطلاعات کامل او به‌صورت کشو باز شود. نام و کد نظام پزشکی قابل ویرایش نیستند؛ بقیه‌ی فیلدها از دکمه‌ی «ویرایش اطلاعات» تغییر می‌کنند. «ناقص» یعنی تخصص، استان، شهر یا آدرس ثبت نشده باشد.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ============================ نسخه‌ها ============================ -->
+<section id="tab-versions" hidden>
+  <div class="card">
+    <div class="stat" id="vStat"></div>
+    <div class="warn" id="vPending" hidden></div>
+    <div class="warn" id="vStale" hidden><span id="vStaleTxt"></span> <button id="staleBtn" style="margin-top:8px">دانلود تغییرات اعمال‌نشده (اکسل)</button></div>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="xlsxDb">دانلود اکسل نسخه جدید (دیتابیس + شیت تغییرات)</button>
+      <button id="dbJs">دانلود دیتابیس جدید (db.js)</button>
+      <button id="htmlDb">دانلود نسخه جدید برنامه (HTML)</button>
+      <button id="importDb">وارد کردن دیتابیس (db.js)</button>
+      <input type="file" id="importFile" accept=".js,.json,.txt" hidden />
+    </div>
+    <p class="hint" id="vHint"></p>
+  </div>
+  <div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <b>تاریخچه‌ی نسخه‌ها</b>
+      <input id="vq" type="search" placeholder="جستجو در تغییرات: نام یا کد پزشک" style="max-width:340px;margin-inline-start:auto" />
+    </div>
+    <div id="vList"></div>
+    <div class="empty" id="vEmpty" hidden>هنوز تغییری ثبت نشده است. از بخش «دیتابیس» روی نام هر پزشک بزنید.</div>
+  </div>
+  <div class="card" id="vReset" hidden>
+    <b>بازنشانی</b>
+    <p class="hint">تغییرات ذخیره‌شده در این مرورگر پاک می‌شود و دیتابیس به نسخه‌ی خودِ این فایل برمی‌گردد. اگر خروجی نگرفته‌اید، تغییرات از بین می‌رود.</p>
+    <button class="danger" id="resetLocal">بازنشانی به نسخه‌ی این فایل</button>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <a class="fbbtn noprint" id="fbBtn" href="#" rel="noopener">باگ دیدید یا پیشنهادی دارید؟ برای من ایمیل بزنید</a>
+  <div class="copy">© 2026 halishirii — All rights reserved.</div>
+</footer>
+<nav class="nav noprint" aria-label="ناوبری">
+  <button class="tab on" data-tab="planner"><svg class="i" viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg><span>دستیار</span></button>
+  <button class="tab" data-tab="db"><svg class="i" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>دیتابیس</span></button>
+  <button class="tab" data-tab="versions"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg><span>نسخه‌ها</span><span class="badge" id="vBadge" hidden></span></button>
+</nav>
+
+<script>
+const PRISTINE = document.documentElement.outerHTML;
+/* ======================== داده ======================== */
+const FIELDS = ["name", "medical_code", "specialty", "province", "city", "district", "address", "visit_days"];
+const LINEAGE = "nova-2026-11-23";
+const EMB = null; /*@emb*/
+const IMP = (() => { try { const x = JSON.parse(localStorage.getItem("nova_import_" + LINEAGE)); return x && Array.isArray(x.rows) && x.version > (EMB ? EMB.version : 0) ? x : null; } catch (e) { return null; } })();
+const EXT = window.NOVA_DB || IMP || EMB;
+if (!EXT) { document.body.innerHTML = '<p style="padding:24px;font:16px Tahoma;direction:rtl">فایل db.js کنار برنامه پیدا نشد.</p>'; throw new Error("no db"); }
+const DATA = EXT.rows.map(r => Object.fromEntries(FIELDS.map((f, k) => [f, r[k]])));
+const BASE_VERSION = EXT.version;
+const HISTORY = EXT.history || [];
+/* ======================== نسخه‌بندی دیتابیس ======================== */
+let LS_OK = true;
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { LS_OK = false; return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { LS_OK = false; return false; } };
+const LSK = "nova_log_" + LINEAGE, LSX = "nova_export_" + LINEAGE;
+lsSet("nova_probe", "1");
+const rawSaved = () => { try { const a = JSON.parse(lsGet(LSK) || "[]"); return Array.isArray(a) ? a.filter(e => e && typeof e.ver === "number") : []; } catch (e) { return []; } };
+const readSaved = () => rawSaved().filter(e => e.base === BASE_VERSION && e.ver > BASE_VERSION);
+const HKEY = new Set(HISTORY.map(h => h.ts + "|" + h.code + "|" + h.field));
+const readStale = () => rawSaved().filter(e => e.base !== BASE_VERSION && !HKEY.has(e.ts + "|" + e.code + "|" + e.field));
+const persistLog = () => lsSet(LSK, JSON.stringify(readStale().concat(LOG.filter(e => e.ver > BASE_VERSION))));
+let LOG = HISTORY.concat(readSaved());
+const BYCODE = new Map(DATA.map(r => [r.medical_code, r]));
+LOG.filter(e => e.ver > BASE_VERSION).forEach(e => { const r = BYCODE.get(e.code); if (r) r[e.field] = e.new; });
+let VER = LOG.reduce((m, e) => Math.max(m, e.ver), BASE_VERSION);
+const $ = id => document.getElementById(id);
+const FA = "۰۱۲۳۴۵۶۷۸۹";
+const fa = v => String(v).replace(/\d/g, d => FA[d]);
+const toEn = s => String(s ?? "").replace(/[۰-۹]/g, d => FA.indexOf(d)).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+const norm = s => toEn(s).replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/[ً-ٟ]/g, "").replace(/[‌‏‎]/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ======================== تقویم شمسی (بر پایه ICU مرورگر) ======================== */
+const DAY = 86400000;
+const JF = new Intl.DateTimeFormat("en-u-ca-persian-nu-latn", { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" });
+const JMONTHS = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const WD = ["شنبه","یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه"]; // ایندکس ۰ = شنبه
+const ordToJ = ord => {
+  const p = Object.fromEntries(JF.formatToParts(new Date(ord * DAY + DAY / 2)).map(x => [x.type, x.value]));
+  return { jy: +p.year, jm: +p.month, jd: +p.day };
+};
+const cmpJ = (a, b) => (a.jy - b.jy) || (a.jm - b.jm) || (a.jd - b.jd);
+function jToOrd(jy, jm, jd) {
+  if (jm < 1 || jm > 12 || jd < 1 || jd > 31) return null;
+  let g = Math.floor(Date.UTC(jy + 621, 2, 21) / DAY) + (jm <= 6 ? (jm - 1) * 31 : 186 + (jm - 7) * 30) + jd - 1;
+  const t = { jy, jm, jd };
+  for (let i = 0; i < 12; i++) {
+    const c = cmpJ(ordToJ(g), t);
+    if (c === 0) return g;
+    g += c < 0 ? 1 : -1;
+  }
+  return null;
+}
+const wdIdx = ord => (new Date(ord * DAY).getUTCDay() + 1) % 7; // شنبه=۰
+const pad2 = n => String(n).padStart(2, "0");
+const fmtJ = ord => { const j = ordToJ(ord); return `${j.jy}/${pad2(j.jm)}/${pad2(j.jd)}`; };
+function parseJ(str) {
+  const m = toEn(str).trim().match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+  return m ? jToOrd(+m[1], +m[2], +m[3]) : null;
+}
+const FIXED_HOLIDAYS = new Set(["1/1","1/2","1/3","1/4","1/12","1/13","3/14","3/15","11/22","12/29"]);
+const isFixedHoliday = ord => { const j = ordToJ(ord); return FIXED_HOLIDAYS.has(`${j.jm}/${j.jd}`); };
+const todayOrd = () => { const d = new Date(); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY); };
+
+/* ======================== روزهای حضور (متن → مجموعه روزها) ======================== */
+function parseDays(text) {
+  const t = norm(text).replace(/\s+/g, "");
+  if (!t) return null;
+  if (/همهروز|هرروز|روزانه/.test(t)) return null;
+  const re = /(چهارشنبه|پنجشنبه|سهشنبه|یکشنبه|دوشنبه|شنبه|جمعه)/g;
+  const names = { "شنبه":0, "یکشنبه":1, "دوشنبه":2, "سهشنبه":3, "چهارشنبه":4, "پنجشنبه":5, "جمعه":6 };
+  const found = []; let m;
+  while ((m = re.exec(t))) found.push({ d: names[m[1]], s: m.index, e: m.index + m[1].length });
+  if (!found.length) return null;
+  const set = new Set();
+  for (let i = 0; i < found.length; i++) {
+    set.add(found[i].d);
+    const nx = found[i + 1];
+    if (nx && t.slice(found[i].e, nx.s) === "تا") {
+      for (let d = found[i].d; ; d = (d + 1) % 7) { set.add(d); if (d === nx.d) break; }
+    }
+  }
+  return set;
+}
+
+/* ======================== نزدیکی آدرس ======================== */
+const STOP = new Set(("خ خیابان ک کوچه پ پلاک ط طبقه واحد ساختمان مطب کلینیک بیمارستان درمانگاه بلوار بل میدان نبش روبروی جنب بالاتر پایینتر محل کار شماره نرسیده بعد از به تهران ایران استان شهر منطقه ب بین طبقه همکف زیرزمین مجتمع مرکز پزشکی درمانی خیابان‌ کوچه‌ جنوبی شمالی شرقی غربی اول دوم سوم چهارم پنجم").split(" "));
+function tokensOf(r) {
+  const skip = new Set([norm(r.city), norm(r.province)]);
+  return norm(r.address).split(/[^؀-ۿa-z0-9]+/).filter(w => w.length > 1 && !/^\d+$/.test(w) && !STOP.has(w) && !skip.has(w));
+}
+const DF = new Map();
+DATA.forEach(r => { r._t = tokensOf(r); new Set(r._t).forEach(w => DF.set(w, (DF.get(w) || 0) + 1)); });
+DATA.forEach(r => { r._tok = new Set(r._t.filter(w => DF.get(w) <= 250)); });
+function geoOf(r) {
+  let dn = null;
+  const m = norm((r.district || "") + " " + (r.address || "")).match(/منطقه\s*(\d{1,2})/);
+  if (m) dn = +m[1];
+  return { prov: norm(r.province), city: norm(r.city), dn, tok: r._tok || new Set(tokensOf(r)) };
+}
+function dist(a, b) {
+  let shared = 0; for (const t of a.tok) if (b.tok.has(t)) shared++;
+  shared = Math.min(shared, 3);
+  if (a.prov && b.prov && a.prov !== b.prov) return 100;
+  if (!a.city || !b.city) return 60 - shared * 6;
+  if (a.city !== b.city) return 40;
+  let d = 10;
+  if (a.dn != null && b.dn != null) d += a.dn === b.dn ? 0 : 3 + Math.min(Math.abs(a.dn - b.dn), 10) * 0.4;
+  else d += 2;
+  return Math.max(d - shared * 2, 0);
+}
+const geoKey = g => `${g.prov}|${g.city}|${String(g.dn ?? 99).padStart(2, "0")}|${[...g.tok].sort()[0] || ""}`;
+
+/* ======================== خواندن فایل ======================== */
+async function inflateRaw(u8) {
+  const s = new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new Uint8Array(await new Response(s).arrayBuffer());
+}
+async function unzip(buf) {
+  const u8 = new Uint8Array(buf), dv = new DataView(buf);
+  let e = u8.length - 22;
+  while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error("فایل اکسل معتبر نیست.");
+  const n = dv.getUint16(e + 10, true); let p = dv.getUint32(e + 16, true); const out = {};
+  for (let i = 0; i < n; i++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true), cs = dv.getUint32(p + 20, true);
+    const nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nl));
+    p += 46 + nl + el + cl;
+    const ds = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true);
+    out[name] = { method, raw: u8.subarray(ds, ds + cs) };
+  }
+  return out;
+}
+const entryText = async en => new TextDecoder().decode(en.method === 0 ? en.raw : await inflateRaw(en.raw));
+async function parseXlsx(buf) {
+  const z = await unzip(buf);
+  const P = new DOMParser();
+  const ss = [];
+  if (z["xl/sharedStrings.xml"]) {
+    const d = P.parseFromString(await entryText(z["xl/sharedStrings.xml"]), "application/xml");
+    for (const si of d.getElementsByTagName("si")) ss.push([...si.getElementsByTagName("t")].map(t => t.textContent).join(""));
+  }
+  const sheetKey = Object.keys(z).filter(k => /^xl\/worksheets\/sheet\d+\.xml$/.test(k)).sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]))[0];
+  if (!sheetKey) throw new Error("برگه‌ای در فایل پیدا نشد.");
+  const d = P.parseFromString(await entryText(z[sheetKey]), "application/xml");
+  const colIdx = ref => { let n = 0; for (const ch of ref.replace(/\d+/g, "")) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; };
+  const rows = [];
+  for (const row of d.getElementsByTagName("row")) {
+    const arr = [];
+    for (const c of row.getElementsByTagName("c")) {
+      const t = c.getAttribute("t"), v = c.getElementsByTagName("v")[0];
+      let val = "";
+      if (t === "s" && v) val = ss[+v.textContent] ?? "";
+      else if (t === "inlineStr") val = [...c.getElementsByTagName("t")].map(x => x.textContent).join("");
+      else if (v) { val = v.textContent; if (t !== "str" && /^-?\d+\.0+$/.test(val)) val = val.replace(/\.0+$/, ""); }
+      arr[colIdx(c.getAttribute("r"))] = val;
+    }
+    rows.push(Array.from(arr, x => x ?? ""));
+  }
+  return rows;
+}
+function parseDelimited(text) {
+  text = text.replace(/^﻿/, "");
+  const first = text.split(/\r?\n/)[0] || "";
+  const delim = first.includes("\t") ? "\t" : first.includes(";") ? ";" : first.includes(",") ? "," : null;
+  if (!delim) return text.split(/\r?\n/).map(l => [l.trim()]).filter(r => r[0]);
+  const rows = []; let row = [], cur = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === delim) { row.push(cur); cur = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cur); rows.push(row); row = []; cur = ""; }
+    else cur += ch;
+  }
+  if (cur || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+const HIGH_RE = /^(1|بله|yes|true|y|\*|★|بالا|زیاد|مهم|high|اولویتبالا|اولویت بالا)$/i;
+function rowsToEntries(rows) {
+  rows = rows.filter(r => r.some(c => String(c ?? "").trim()));
+  if (!rows.length) return [];
+  const hdr = rows[0].map(c => norm(c));
+  const find = re => hdr.findIndex(h => re.test(h));
+  let ci = find(/کد|code/), ni = find(/نام|name/), pi = find(/اولویت|priority/), di = find(/روز|ساعت|days/);
+  let start = 1;
+  if (ci < 0 && ni < 0) { start = 0; ci = ni = pi = di = -1; }
+  const out = [];
+  for (const r of rows.slice(start)) {
+    let code = "", name = "";
+    if (start === 0) {
+      const c0 = norm(r[0]);
+      if (/^\d+$/.test(c0)) code = c0; else name = String(r[0]).trim();
+    } else {
+      code = ci >= 0 ? norm(r[ci]).replace(/\.0+$/, "") : "";
+      name = ni >= 0 ? String(r[ni] ?? "").trim() : "";
+    }
+    if (!code && !name) continue;
+    out.push({
+      code, name,
+      high: pi >= 0 && HIGH_RE.test(norm(r[pi]).replace(/\s+/g, " ")),
+      daysText: di >= 0 ? String(r[di] ?? "").trim() : "",
+    });
+  }
+  return out;
+}
+
+/* ======================== تطبیق با دیتابیس ======================== */
+const byCode = new Map(DATA.map(r => [String(r.medical_code).replace(/^0+(?=\d)/, ""), r]));
+const nameKey = s => norm(s).replace(/^(دکتر|دکترا|دکتری|خانم|آقای|dr\.?)\s+/, "").replace(/\s+/g, " ");
+const byName = new Map();
+DATA.forEach(r => { const k = nameKey(r.name); (byName.get(k) || byName.set(k, []).get(k)).push(r); });
+function matchEntries(entries) {
+  const matched = [], unmatched = [], seen = new Set();
+  for (const e of entries) {
+    let rec = null, why = "";
+    if (e.code) { rec = byCode.get(e.code.replace(/^0+(?=\d)/, "")) || null; if (!rec) why = "کد در دیتابیس نیست"; }
+    if (!rec && e.name) {
+      const c = byName.get(nameKey(e.name));
+      if (c && c.length === 1) { rec = c[0]; why = ""; }
+      else if (c && c.length > 1) why = "نام تکراری است؛ کد نظام پزشکی لازم است";
+      else if (!why) why = "نام در دیتابیس نیست";
+    }
+    if (!rec) { unmatched.push({ label: e.name || e.code, why }); continue; }
+    if (seen.has(rec.medical_code)) continue;
+    seen.add(rec.medical_code);
+    const daysText = e.daysText || rec.visit_days || "";
+    matched.push({ rec, high: e.high, daysText, days: parseDays(daysText), geo: geoOf(rec) });
+  }
+  return { matched, unmatched };
+}
+
+/* ======================== موتور برنامه‌ریزی ======================== */
+function buildPlan(docs, o) {
+  // روزهای کاری
+  const exDates = new Set(o.exDates);
+  const work = [];
+  for (let ord = o.startOrd; ord <= o.endOrd; ord++) {
+    const w = wdIdx(ord);
+    if (o.exWeekdays.has(w) || exDates.has(ord) || (o.exHolidays && isFixedHoliday(ord))) continue;
+    work.push({ ord, w });
+  }
+  const workW = new Set(work.map(x => x.w));
+  // آیتم‌های ویزیت: دور ۱ برای همه، دورهای بعدی فقط اولویت بالا
+  const items = [], unplanned = [];
+  for (const d of docs) {
+    if (d.days && ![...d.days].some(w => workW.has(w))) { unplanned.push({ d, why: "روزهای حضور پزشک با روزهای کاری بازه همخوانی ندارد" }); continue; }
+    const rounds = d.high ? o.hiRepeat : 1;
+    for (let r = 1; r <= rounds; r++) items.push({ d, round: r, high: d.high, key: geoKey(d.geo) });
+  }
+  items.sort((a, b) => (a.round - b.round) || (b.high - a.high) || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+  // داخل هر گروه هم‌اولویت، مناطق به‌نوبت می‌آیند تا وقتی ظرفیت کم است همه مناطق انتخابی پوشش داده شوند
+  {
+    const groups = new Map();
+    items.forEach(it => { const g = it.round + "|" + (it.high ? 1 : 0); (groups.get(g) || groups.set(g, []).get(g)).push(it); });
+    items.length = 0;
+    for (const arr of groups.values()) {
+      const buckets = new Map();
+      arr.forEach(it => { const k = regKey(it.d.rec); (buckets.get(k) || buckets.set(k, []).get(k)).push(it); });
+      const lists = [...buckets.values()];
+      for (let i = 0; lists.some(l => i < l.length); i++) lists.forEach(l => { if (i < l.length) items.push(l[i]); });
+    }
+  }
+  const cap = work.length * o.perDay;
+  const selected = items.slice(0, cap);
+  items.slice(cap).forEach(it => unplanned.push({ d: it.d, round: it.round, why: "ظرفیت بازه کافی نبود (تعداد روز × ویزیت در روز)" }));
+
+  let pending = selected.slice();
+  const last = new Map();
+  const days = [];
+  for (const wd of work) {
+    const ok = it => (!it.d.days || it.d.days.has(wd.w)) && (!last.has(it.d) || wd.ord - last.get(it.d) >= o.minGap);
+    const chosen = [];
+    const seedI = pending.findIndex(ok);
+    if (seedI >= 0) {
+      chosen.push(pending.splice(seedI, 1)[0]);
+      while (chosen.length < o.perDay) {
+        let bi = -1, bs = Infinity;
+        for (let i = 0; i < pending.length; i++) {
+          const it = pending[i];
+          if (!ok(it) || chosen.some(c => c.d === it.d)) continue;
+          let s = 0; for (const c of chosen) s += dist(c.d.geo, it.d.geo);
+          s = s / chosen.length - (it.high ? 2 : 0) + (it.round - 1) * 30;
+          if (s < bs) { bs = s; bi = i; }
+        }
+        if (bi < 0) break;
+        chosen.push(pending.splice(bi, 1)[0]);
+      }
+      // ترتیب مسیر در روز: نزدیک‌ترین همسایه از اولین پزشک
+      const route = [chosen.shift()];
+      while (chosen.length) {
+        let bi = 0, bs = Infinity;
+        chosen.forEach((c, i) => { const s = dist(route[route.length - 1].d.geo, c.d.geo); if (s < bs) { bs = s; bi = i; } });
+        route.push(chosen.splice(bi, 1)[0]);
+      }
+      route.forEach(it => last.set(it.d, wd.ord));
+      days.push({ ...wd, visits: route });
+    } else days.push({ ...wd, visits: [] });
+  }
+  pending.forEach(it => unplanned.push({ d: it.d, round: it.round, why: "جای مناسب پیدا نشد (روز حضور پزشک یا حداقل فاصله ویزیت)" }));
+  return { days, unplanned, work };
+}
+
+/* ======================== خروجی اکسل ======================== */
+const enc = new TextEncoder();
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = u => { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+function zipStore(files, type) {
+  const parts = [], central = []; let off = 0;
+  for (const f of files) {
+    const nb = enc.encode(f.name), data = enc.encode(f.text), crc = crc32(data);
+    const lh = new Uint8Array(30 + nb.length), v = new DataView(lh.buffer);
+    v.setUint32(0, 0x04034b50, true); v.setUint16(4, 20, true); v.setUint16(6, 0x0800, true); v.setUint16(12, 0x21, true);
+    v.setUint32(14, crc, true); v.setUint32(18, data.length, true); v.setUint32(22, data.length, true); v.setUint16(26, nb.length, true); lh.set(nb, 30);
+    const ch = new Uint8Array(46 + nb.length), c = new DataView(ch.buffer);
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(14, 0x21, true);
+    c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true); c.setUint16(28, nb.length, true); c.setUint32(42, off, true); ch.set(nb, 46);
+    parts.push(lh, data); central.push(ch); off += lh.length + data.length;
+  }
+  const cd = central.reduce((s, x) => s + x.length, 0), end = new Uint8Array(22), e = new DataView(end.buffer);
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cd, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...central, end], { type });
+}
+const xe = s => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const colName = i => { let s = "", n = i + 1; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+function sheetXml(rows, widths) {
+  const cols = widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("");
+  const body = rows.map((r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) =>
+    `<c r="${colName(ci)}${ri + 1}" t="inlineStr"${ri === 0 ? ' s="1"' : ""}><is><t xml:space="preserve">${xe(v)}</t></is></c>`).join("") + "</row>").join("");
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView rightToLeft="1" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${cols}</cols><sheetData>${body}</sheetData></worksheet>`;
+}
+function makeXlsx(sheets) {
+  const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const files = [
+    { name: "[Content_Types].xml", text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>` },
+    { name: "_rels/.rels", text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${R}/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+    { name: "xl/workbook.xml", text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${R}"><sheets>${sheets.map((s, i) => `<sheet name="${xe(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>` },
+    { name: "xl/_rels/workbook.xml.rels", text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="${R}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}<Relationship Id="rId${sheets.length + 1}" Type="${R}/styles" Target="styles.xml"/></Relationships>` },
+    { name: "xl/styles.xml", text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Tahoma"/></font><font><b/><sz val="11"/><name val="Tahoma"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFCCFBF1"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>` },
+    ...sheets.map((s, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, text: sheetXml(s.rows, s.widths) })),
+  ];
+  return zipStore(files, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+}
+function download(blob, name) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+/* ======================== رابط دستیار ======================== */
+let MATCHED = [], LAST_PLAN = null;
+const exBox = $("exWeekdays");
+WD.forEach((n, i) => {
+  const l = document.createElement("label");
+  l.innerHTML = `<input type="checkbox" value="${i}" ${i >= 5 ? "checked" : ""}/> ${n}`;
+  exBox.appendChild(l);
+});
+(() => { const t = todayOrd(); $("start").value = fa(fmtJ(t)); $("end").value = fa(fmtJ(t + 29)); })();
+
+
+
+const cityDist = r => [r.city, r.district].filter(Boolean).join(" / ") || "-";
+function renderMatched() {
+  $("matchedBody").innerHTML = MATCHED.map((m, i) => `<tr>
+    <td><input type="checkbox" data-i="${i}" ${m.high ? "checked" : ""}/></td>
+    <td>${esc(m.rec.name)}</td><td class="num">${esc(m.rec.medical_code)}</td><td>${esc(m.rec.specialty) || "-"}</td>
+    <td>${esc(cityDist(m.rec))}</td><td class="addr">${esc(m.rec.address) || "-"}</td><td>${esc(m.daysText) || "همه روزها"}</td></tr>`).join("");
+  updateHiCount();
+}
+const updateHiCount = () => { $("hiCount").textContent = `${fa(MATCHED.filter(m => m.high).length)} اولویت بالا از ${fa(MATCHED.length)}`; };
+$("matchedBody").addEventListener("change", e => { const i = e.target.dataset.i; if (i != null) { MATCHED[+i].high = e.target.checked; updateHiCount(); } });
+$("hiAll").onclick = () => { MATCHED.forEach(m => m.high = true); renderMatched(); };
+$("hiNone").onclick = () => { MATCHED.forEach(m => m.high = false); renderMatched(); };
+
+/* ---- انتخاب چندمنطقه‌ای ---- */
+const SEL = new Set();
+const regKey = r => (r.city || "") + "|" + (r.district || "");
+const REG = new Map(); // شهر -> Map(منطقه -> تعداد)
+DATA.forEach(r => {
+  const c = r.city || "", d = r.district || "";
+  if (!REG.has(c)) REG.set(c, new Map());
+  REG.get(c).set(d, (REG.get(c).get(d) || 0) + 1);
+});
+const cityLabel = c => c || "شهر نامشخص";
+const distLabel = d => d || "منطقه نامشخص";
+function renderRegions() {
+  const q = norm($("regSearch").value);
+  const cities = [...REG.entries()].sort((a, b) => [...b[1].values()].reduce((x, y) => x + y, 0) - [...a[1].values()].reduce((x, y) => x + y, 0));
+  let html = "";
+  for (const [c, dm] of cities) {
+    const cityHit = !q || norm(cityLabel(c)).includes(q);
+    const ds = [...dm.entries()].sort((a, b) => (a[0] === "") - (b[0] === "") || a[0].localeCompare(b[0], "fa", { numeric: true }))
+      .filter(([d]) => cityHit || norm(distLabel(d)).includes(q));
+    if (!ds.length) continue;
+    const total = [...dm.values()].reduce((x, y) => x + y, 0);
+    html += `<details ${q || SEL.size && [...dm.keys()].some(d => SEL.has(c + "|" + d)) ? "open" : ""}><summary><input type="checkbox" data-city="${esc(c)}"/> ${esc(cityLabel(c))} <span class="count">(${fa(total)} پزشک)</span></summary><div class="chips">` +
+      ds.map(([d, n]) => `<label><input type="checkbox" data-k="${esc(c + "|" + d)}" ${SEL.has(c + "|" + d) ? "checked" : ""}/> ${esc(distLabel(d))} <span class="count">${fa(n)}</span></label>`).join("") + `</div></details>`;
+  }
+  $("regions").innerHTML = html || `<div class="empty">موردی پیدا نشد.</div>`;
+  syncCityBoxes();
+}
+function syncCityBoxes() {
+  document.querySelectorAll("#regions input[data-city]").forEach(cb => {
+    const c = cb.dataset.city, keys = [...REG.get(c).keys()].map(d => c + "|" + d);
+    const n = keys.filter(k => SEL.has(k)).length;
+    cb.checked = n === keys.length; cb.indeterminate = n > 0 && n < keys.length;
+  });
+  $("regCount").textContent = SEL.size ? `${fa(SEL.size)} منطقه انتخاب شد` : "همه مناطق";
+}
+$("regions").addEventListener("click", e => { if (e.target.matches("input[data-city]")) e.stopPropagation(); });
+$("regions").addEventListener("change", e => {
+  const t = e.target;
+  if (t.dataset.city !== undefined) {
+    [...REG.get(t.dataset.city).keys()].forEach(d => { const k = t.dataset.city + "|" + d; t.checked ? SEL.add(k) : SEL.delete(k); });
+    document.querySelectorAll(`#regions input[data-k]`).forEach(cb => { if (cb.dataset.k.startsWith(t.dataset.city + "|")) cb.checked = t.checked; });
+  } else if (t.dataset.k !== undefined) t.checked ? SEL.add(t.dataset.k) : SEL.delete(t.dataset.k);
+  syncCityBoxes(); refreshMatched();
+});
+$("regSearch").addEventListener("input", renderRegions);
+$("regClear").onclick = () => { SEL.clear(); renderRegions(); refreshMatched(); };
+renderRegions();
+
+/* ---- ساخت فهرست پزشکان ---- */
+let SOURCE = null, FILE_ALL = [], FILE_INFO = "";
+const DB_CACHE = new Map();
+const dbMatched = rec => {
+  let m = DB_CACHE.get(rec.medical_code);
+  if (!m) { m = { rec, high: false, daysText: rec.visit_days || "", days: parseDays(rec.visit_days), geo: geoOf(rec) }; DB_CACHE.set(rec.medical_code, m); }
+  return m;
+};
+const inRegion = rec => !SEL.size || SEL.has(regKey(rec));
+function refreshMatched() {
+  if (!SOURCE) return;
+  if (SOURCE === "file") {
+    MATCHED = FILE_ALL.filter(m => inRegion(m.rec));
+    $("loadInfo").textContent = FILE_INFO + (SEL.size ? ` — ${fa(MATCHED.length)} پزشک در مناطق انتخابی` : "");
+  } else {
+    MATCHED = SEL.size ? DATA.filter(inRegion).map(dbMatched) : [];
+    $("loadInfo").textContent = SEL.size ? `${fa(MATCHED.length)} پزشک دیتابیس در مناطق انتخابی` : "برای ساخت فهرست از دیتابیس، حداقل یک منطقه انتخاب کنید.";
+  }
+  $("matchedBox").hidden = false;
+  renderMatched();
+  $("gen").disabled = !MATCHED.length;
+}
+
+$("load").onclick = async () => {
+  $("loadErr").textContent = ""; $("loadInfo").textContent = "";
+  try {
+    const f = $("file").files[0];
+    const hasInput = f || $("paste").value.trim();
+    if (!hasInput) {
+      if (!SEL.size) { $("loadErr").textContent = "فایل پزشکان را بدهید یا حداقل یک منطقه انتخاب کنید."; return; }
+      SOURCE = "db"; $("unmatchedBox").hidden = true; refreshMatched(); return;
+    }
+    let rows;
+    if (f) rows = /\.xlsx$/i.test(f.name) ? await parseXlsx(await f.arrayBuffer()) : parseDelimited(await f.text());
+    else rows = parseDelimited($("paste").value);
+    const entries = rowsToEntries(rows);
+    if (!entries.length) { $("loadErr").textContent = "هیچ پزشکی در ورودی پیدا نشد."; return; }
+    const { matched, unmatched } = matchEntries(entries);
+    SOURCE = "file"; FILE_ALL = matched;
+    FILE_INFO = `${fa(entries.length)} ردیف خوانده شد؛ ${fa(matched.length)} پزشک در دیتابیس پیدا شد`;
+    const ub = $("unmatchedBox");
+    ub.hidden = !unmatched.length;
+    ub.innerHTML = unmatched.length ? `<b>${fa(unmatched.length)} مورد در دیتابیس پیدا نشد و در پلن نمی‌آید:</b><ul>${unmatched.slice(0, 30).map(u => `<li>${esc(u.label)} — ${esc(u.why)}</li>`).join("")}${unmatched.length > 30 ? `<li>و ${fa(unmatched.length - 30)} مورد دیگر…</li>` : ""}</ul>` : "";
+    refreshMatched();
+  } catch (err) { $("loadErr").textContent = "خطا در خواندن فایل: " + err.message; }
+};
+
+$("gen").onclick = () => {
+  const errs = [];
+  const startOrd = parseJ($("start").value), endOrd = parseJ($("end").value);
+  if (startOrd == null) errs.push("تاریخ شروع معتبر نیست (مثال: ۱۴۰۵/۰۹/۱۰).");
+  if (endOrd == null) errs.push("تاریخ پایان معتبر نیست.");
+  if (startOrd != null && endOrd != null && endOrd < startOrd) errs.push("تاریخ پایان قبل از شروع است.");
+  if (startOrd != null && endOrd != null && endOrd - startOrd > 400) errs.push("بازه حداکثر ۴۰۰ روز می‌تواند باشد.");
+  const perDay = Math.max(1, parseInt(toEn($("perDay").value)) || 0);
+  const exDates = [];
+  toEn($("exDates").value).split(/[,\s،;]+/).filter(Boolean).forEach(s => { const o = parseJ(s); if (o == null) errs.push(`تاریخ حذفی نامعتبر: ${s}`); else exDates.push(o); });
+  if (errs.length) { $("genErr").textContent = errs.join("\n"); return; }
+  $("genErr").textContent = "";
+  const o = {
+    startOrd, endOrd, perDay, exDates,
+    exWeekdays: new Set([...exBox.querySelectorAll("input:checked")].map(x => +x.value)),
+    exHolidays: $("exHolidays").checked,
+    hiRepeat: Math.max(1, parseInt($("hiRepeat").value) || 1),
+    minGap: Math.max(1, parseInt($("minGap").value) || 1),
+  };
+  const plan = buildPlan(MATCHED, o);
+  LAST_PLAN = { plan, o };
+  renderPlan(plan, o);
+};
+
+function renderPlan(plan, o) {
+  const active = plan.days.filter(d => d.visits.length);
+  const total = plan.days.reduce((s, d) => s + d.visits.length, 0);
+  const hi = plan.days.reduce((s, d) => s + d.visits.filter(v => v.high).length, 0);
+  const emptyDays = plan.days.length - active.length;
+  $("novaMsg").innerHTML = `<b>نووا:</b> از ${fa(fmtJ(o.startOrd))} تا ${fa(fmtJ(o.endOrd))} تعداد ${fa(plan.work.length)} روز کاری دارید. ` +
+    `${fa(total)} ویزیت برای ${fa(new Set(plan.days.flatMap(d => d.visits.map(v => v.d))).size)} پزشک چیدم (حداکثر ${fa(o.perDay)} ویزیت در روز) ` +
+    `که ${fa(hi)} ویزیت آن مربوط به پزشکان اولویت بالا است. پزشکان اولویت بالا زودتر و پزشکان هم‌منطقه در یک روز قرار گرفتند.` +
+    (emptyDays ? ` ${fa(emptyDays)} روز آخر بازه خالی ماند چون پزشکان کافی نبود.` : "");
+  let n = 0, html = "";
+  for (const d of active) {
+    html += `<tr class="dayhead"><td colspan="8">${WD[d.w]} ${fa(fmtJ(d.ord))} — ${fa(d.visits.length)} ویزیت</td></tr>`;
+    for (const v of d.visits) {
+      const r = v.d.rec;
+      html += `<tr><td class="num">${fa(++n)}</td><td>${esc(r.name)}${v.round > 1 ? ` <span class="count">(ویزیت مجدد)</span>` : ""}</td><td class="num">${esc(r.medical_code)}</td><td>${esc(r.specialty) || "-"}</td><td>${esc(cityDist(r))}</td><td class="addr">${esc(r.address) || "-"}</td><td>${esc(v.d.daysText) || "همه روزها"}</td><td>${v.high ? '<span class="star">★ بالا</span>' : "عادی"}</td></tr>`;
+    }
+  }
+  $("planBody").innerHTML = html || `<tr><td colspan="8" class="empty">هیچ ویزیتی چیده نشد.</td></tr>`;
+  const ub = $("unplannedBox");
+  ub.hidden = !plan.unplanned.length;
+  ub.innerHTML = plan.unplanned.length ? `<b>${fa(plan.unplanned.length)} ویزیت چیده نشد:</b><ul>${plan.unplanned.slice(0, 40).map(u => `<li>${esc(u.d.rec.name)} (${esc(u.d.rec.medical_code)}) — ${esc(u.why)}</li>`).join("")}${plan.unplanned.length > 40 ? `<li>و ${fa(plan.unplanned.length - 40)} مورد دیگر… (در فایل اکسل کامل است)</li>` : ""}</ul>` : "";
+  $("result").hidden = false;
+  $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+$("xlsx").onclick = () => {
+  if (!LAST_PLAN) return;
+  const { plan } = LAST_PLAN;
+  const head = ["ردیف", "تاریخ شمسی", "روز هفته", "نام پزشک", "کد نظام پزشکی", "تخصص", "استان", "شهر", "منطقه", "آدرس", "روزهای حضور", "اولویت", "توضیح"];
+  const rows = [head]; let n = 0;
+  for (const d of plan.days) for (const v of d.visits) {
+    const r = v.d.rec;
+    rows.push([fa(++n), fa(fmtJ(d.ord)), WD[d.w], r.name, r.medical_code, r.specialty, r.province, r.city, r.district, r.address, v.d.daysText || "همه روزها", v.high ? "بالا" : "عادی", v.round > 1 ? "ویزیت مجدد" : ""]);
+  }
+  const un = [["نام پزشک", "کد نظام پزشکی", "دلیل"], ...plan.unplanned.map(u => [u.d.rec.name, u.d.rec.medical_code, u.why])];
+  download(makeXlsx([
+    { name: "اکشن‌پلن", rows, widths: [6, 13, 11, 26, 14, 14, 12, 12, 11, 60, 22, 9, 12] },
+    { name: "چیده نشده", rows: un, widths: [26, 14, 60] },
+  ]), "action-plan.xlsx");
+};
+$("print").onclick = () => window.print();
+
+/* ======================== مرورگر دیتابیس ======================== */
+const PAGE = 50;
+let page = 0, view = DATA;
+DATA.forEach(r => { r._s = norm([r.name, r.medical_code, r.address].join(" ")); });
+function fillSelect(id, key) {
+  const vals = [...new Set(DATA.map(r => r[key]).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fa", { numeric: true }));
+  const el = $(id); el.length = 1; vals.forEach(v => el.add(new Option(v, v)));
+}
+["province", "city", "district", "specialty"].forEach(k => fillSelect(k, k));
+function applyDb() {
+  const q = norm($("q").value), f = k => $(k).value;
+  view = DATA.filter(r => (!q || r._s.includes(q)) && (!f("complete") || isIncomplete(r)) && (!f("province") || r.province === f("province")) && (!f("city") || r.city === f("city")) && (!f("district") || r.district === f("district")) && (!f("specialty") || r.specialty === f("specialty")));
+  page = 0; renderDb();
+}
+function renderDb() {
+  const pages = Math.max(1, Math.ceil(view.length / PAGE));
+  page = Math.min(page, pages - 1);
+  const rows = view.slice(page * PAGE, page * PAGE + PAGE);
+  $("body").innerHTML = rows.map(rowHtml).join("");
+  $("empty").hidden = rows.length > 0;
+  $("count").textContent = `${fa(view.length.toLocaleString("en"))} از ${fa(DATA.length.toLocaleString("en"))} پزشک`;
+  $("page").textContent = `${fa(page + 1)} / ${fa(pages)}`;
+  $("prev").disabled = page === 0; $("next").disabled = page >= pages - 1;
+}
+function downloadCsv() {
+  const head = ["نام پزشک", "کد نظام پزشکی", "تخصص", "استان", "شهر", "منطقه", "آدرس", "روزهای حضور"];
+  const cell = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const lines = [head.map(cell).join(",")].concat(view.map(r => FIELDS.map(k => cell(r[k])).join(",")));
+  download(new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" }), "doctors.csv");
+}
+let tm;
+$("q").addEventListener("input", () => { clearTimeout(tm); tm = setTimeout(applyDb, 200); });
+["province", "city", "district", "specialty", "complete"].forEach(k => $(k).addEventListener("change", applyDb));
+$("reset").onclick = () => { $("q").value = ""; ["province", "city", "district", "specialty", "complete"].forEach(k => $(k).value = ""); applyDb(); };
+$("prev").onclick = () => { page--; renderDb(); };
+$("next").onclick = () => { page++; renderDb(); };
+$("csv").onclick = downloadCsv;
+/* ======================== پروفایل، ویرایش و نسخه‌ها ======================== */
+const FLD = [
+  { k: "name", l: "نام پزشک", lock: 1 },
+  { k: "medical_code", l: "کد نظام پزشکی", lock: 1 },
+  { k: "specialty", l: "تخصص", list: 1 },
+  { k: "province", l: "استان", list: 1 },
+  { k: "city", l: "شهر", list: 1 },
+  { k: "district", l: "منطقه", list: 1 },
+  { k: "address", l: "آدرس", area: 1 },
+  { k: "visit_days", l: "روزهای حضور", hint: "مثال: شنبه تا چهارشنبه — یا: شنبه، دوشنبه. خالی یا «همه روزها» یعنی هر روز." },
+];
+const EDITABLE = FLD.filter(f => !f.lock);
+const labOf = k => (FLD.find(f => f.k === k) || {}).l || k;
+const clean = s => String(s ?? "").replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, " ").trim();
+const IC = {
+  x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  edit: '<svg class="i sm" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+};
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2800);
+}
+function overlay(html, mid) {
+  const ov = document.createElement("div");
+  ov.className = "ov" + (mid ? " mid" : "");
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(ov); document.body.classList.add("lock");
+  const o = { ov, sheet: ov.firstElementChild, canDismiss: () => true };
+  o.close = () => { ov.remove(); if (!document.querySelector(".ov")) document.body.classList.remove("lock"); };
+  let down = false;
+  ov.addEventListener("mousedown", e => { down = e.target === ov; });
+  ov.addEventListener("click", e => { if (e.target === ov && down && o.canDismiss()) o.close(); });
+  return o;
+}
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  const all = document.querySelectorAll(".ov"); if (!all.length) return;
+  const top = all[all.length - 1];
+  if (top._o && top._o.canDismiss()) top._o.close();
+});
+
+/* ---- پروفایل ---- */
+let PROF = null;
+function openProfile(code, edit) {
+  const rec = BYCODE.get(code); if (!rec) return;
+  const o = overlay("", false); o.ov._o = o;
+  PROF = { rec, o, edit: !!edit };
+  o.canDismiss = () => !PROF.edit;
+  renderProfile();
+}
+const dl = (id, key) => `<datalist id="${id}">${[...new Set(DATA.map(r => r[key]).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fa")).map(v => `<option value="${esc(v)}">`).join("")}</datalist>`;
+function renderProfile() {
+  const { rec, o, edit } = PROF;
+  const first = (rec.name || "").replace(/^دکتر\s*/, "").trim()[0] || "د";
+  let h = `<div class="grab"></div><div class="shead"><div class="avatar">${esc(first)}</div>
+    <div style="min-width:0"><h2>${esc(rec.name)}</h2><div class="sub"><span class="chip acc">کد نظام پزشکی ${esc(rec.medical_code)}</span>${rec.specialty ? `<span class="chip">${esc(rec.specialty)}</span>` : ""}</div></div>
+    <button class="ibtn x" data-act="close" aria-label="بستن">${IC.x}</button></div>`;
+  if (!edit) {
+    h += `<div class="kv">` + FLD.map(f => `<div class="it" data-f="${f.k}"><small>${f.l}</small><div>${rec[f.k] ? esc(rec[f.k]) : '<span class="count">ثبت نشده</span>'}</div></div>`).join("") + `</div>`;
+    const hist = LOG.filter(e => e.code === rec.medical_code).slice(-6).reverse();
+    if (hist.length) h += `<div class="hist"><h3>آخرین تغییرات این پزشک</h3>` + hist.map(e => `<div class="vr"><span class="chip acc">نسخه ${fa(e.ver)}</span> <span class="count">${fmtTs(e.ts)}</span><br>${esc(labOf(e.field))}: <span class="old">${esc(e.old || "—")}</span> ← <span class="nw">${esc(e.new || "—")}</span></div>`).join("") + `</div>`;
+    h += `<div class="sbar"><button class="primary" data-act="edit">${IC.edit} ویرایش اطلاعات</button><button data-act="close">بستن</button></div>`;
+  } else {
+    h += `<p class="hint" style="margin:0 0 12px">نام و کد نظام پزشکی قابل ویرایش نیستند. بقیه‌ی فیلدها را تغییر دهید و «بررسی و ذخیره» را بزنید؛ پیش از اعمال، تأیید گرفته می‌شود.</p>`;
+    h += FLD.map(f => {
+      const v = rec[f.k] ?? "";
+      if (f.lock) return `<div class="fld"><label class="f">${f.l}<span class="lk">(غیرقابل ویرایش)</span></label><input value="${esc(v)}" disabled /></div>`;
+      const ctl = f.area ? `<textarea id="pf_${f.k}">${esc(v)}</textarea>` : `<input id="pf_${f.k}" value="${esc(v)}" ${f.list ? `list="dl_${f.k}"` : ""} autocomplete="off" />`;
+      return `<div class="fld"><label class="f" for="pf_${f.k}">${f.l}</label>${ctl}${f.hint ? `<p class="hint">${f.hint}</p>` : ""}</div>`;
+    }).join("");
+    h += ["specialty", "province", "city", "district"].map(k => dl("dl_" + k, k)).join("");
+    h += `${netLinks(rec)}<div class="err" id="pfErr"></div><div class="sbar"><button class="primary" data-act="review">بررسی و ذخیره</button><button data-act="cancel">انصراف</button></div>`;
+  }
+  o.sheet.innerHTML = h;
+  o.sheet.onclick = e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const a = b.dataset.act;
+    if (a === "close") o.close();
+    else if (a === "edit") { PROF.edit = true; renderProfile(); }
+    else if (a === "cancel") { PROF.edit = false; renderProfile(); }
+    else if (a === "review") reviewEdit();
+  };
+}
+function collectDiffs() {
+  const { rec } = PROF, diffs = [], errs = [];
+  for (const f of EDITABLE) {
+    const nv = clean($("pf_" + f.k).value), ov = clean(rec[f.k]);
+    if (nv === ov) continue;
+    if (f.k === "address" && !nv) { errs.push("آدرس پزشک را نمی‌توان خالی کرد."); continue; }
+    if (f.k === "visit_days" && nv && !/(همه|روزانه|هر\s*روز)/.test(nv) && !parseDays(nv)) { errs.push("روزهای حضور شناسایی نشد. نمونه: «شنبه تا چهارشنبه» یا «شنبه، دوشنبه»."); continue; }
+    diffs.push({ k: f.k, old: rec[f.k] ?? "", nw: nv });
+  }
+  return { diffs, errs };
+}
+function reviewEdit() {
+  const { diffs, errs } = collectDiffs();
+  $("pfErr").textContent = errs.join("\n");
+  if (errs.length) return;
+  if (!diffs.length) { toast("تغییری وارد نشده است"); return; }
+  const rec = PROF.rec;
+  const c = overlay(`<div class="grab"></div><div class="shead"><h2>تأیید اعمال تغییرات</h2></div>
+    <p class="hint" style="margin:0">برای «${esc(rec.name)}» (کد ${esc(rec.medical_code)}) ${fa(diffs.length)} فیلد تغییر می‌کند. با تأیید، نسخه‌ی <b>${fa(VER + 1)}</b> دیتابیس ساخته و در شیت «تغییرات» ثبت می‌شود.</p>
+    <div class="diff">${diffs.map(d => `<div class="d"><b>${labOf(d.k)}</b><div class="old">${esc(d.old || "—")}</div><div class="nw">${esc(d.nw || "—")}</div></div>`).join("")}</div>
+    <label class="f" for="cfNote">یادداشت (اختیاری)</label><input id="cfNote" placeholder="مثلاً: طبق تماس تلفنی با مطب" />
+    <div class="sbar"><button class="primary" data-act="ok">تأیید و اعمال</button><button data-act="back">بازگشت به ویرایش</button></div>`, true);
+  c.ov._o = c;
+  c.sheet.onclick = e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    if (b.dataset.act === "back") c.close();
+    else if (b.dataset.act === "ok") {
+      const note = clean($("cfNote").value);
+      if (!applyChanges(rec, diffs, note)) return;
+      c.close(); PROF.edit = false; renderProfile();
+      toast(`نسخه ${fa(VER)} ثبت شد`);
+    }
+  };
+  $("cfNote").focus();
+}
+
+/* ---- اعمال تغییرات ---- */
+function savedMaxVer() { return readSaved().reduce((m, e) => Math.max(m, e.ver), 0); }
+function applyChanges(rec, diffs, note) {
+  if (savedMaxVer() > VER) { toast("نسخه‌ی جدیدتری در تب دیگری ثبت شده؛ صفحه را تازه کنید."); return false; }
+  const ver = VER + 1, ts = Date.now();
+  const entries = diffs.map(d => ({ ver, base: BASE_VERSION, ts, code: rec.medical_code, name: rec.name, field: d.k, old: d.old, new: d.nw, note }));
+  const next = LOG.concat(entries);
+  diffs.forEach(d => { rec[d.k] = d.nw; });
+  LOG = next; VER = ver;
+  const ok = persistLog();
+  afterEdit(rec, diffs);
+  if (!ok) { $("lsWarn").hidden = false; toast("ذخیره در مرورگر ممکن نشد — خروجی بگیرید"); }
+  return true;
+}
+function afterEdit(rec, diffs) {
+  const ch = new Set(diffs.map(d => d.k));
+  rec._s = norm([rec.name, rec.medical_code, rec.address].join(" "));
+  if (["address", "city", "province"].some(k => ch.has(k))) {
+    new Set(rec._t || []).forEach(w => DF.set(w, (DF.get(w) || 1) - 1));
+    rec._t = tokensOf(rec);
+    new Set(rec._t).forEach(w => DF.set(w, (DF.get(w) || 0) + 1));
+    rec._tok = new Set(rec._t.filter(w => DF.get(w) <= 250));
+  }
+  const oldDays = diffs.find(d => d.k === "visit_days");
+  [MATCHED, FILE_ALL].forEach(list => list.forEach(m => {
+    if (m.rec !== rec) return;
+    m.geo = geoOf(rec);
+    if (oldDays && (SOURCE !== "file" || m.daysText === oldDays.old)) { m.daysText = rec.visit_days || ""; m.days = parseDays(m.daysText); }
+  }));
+  if (["province", "city", "district"].some(k => ch.has(k))) {
+    REG.clear();
+    DATA.forEach(r => { const c = r.city || "", d = r.district || ""; if (!REG.has(c)) REG.set(c, new Map()); REG.get(c).set(d, (REG.get(c).get(d) || 0) + 1); });
+    [...SEL].forEach(k => { const i = k.indexOf("|"), c = k.slice(0, i), d = k.slice(i + 1); if (!(REG.get(c) && REG.get(c).has(d))) SEL.delete(k); });
+    renderRegions();
+  }
+  ["province", "city", "district", "specialty"].forEach(k => { const el = $(k), v = el.value; fillSelect(k, k); el.value = v; });
+  if (SOURCE) refreshMatched();
+  const keep = page; applyDb(); page = keep; renderDb();
+  updateChrome();
+  if (!$("tab-versions").hidden) renderVersions();
+}
+
+/* ---- ظاهر و نسخه‌ها ---- */
+function fmtTs(ts) {
+  const d = new Date(ts), o = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY);
+  return fa(fmtJ(o)) + " — " + fa(pad2(d.getHours()) + ":" + pad2(d.getMinutes()));
+}
+const exportedVer = () => Math.max(BASE_VERSION, parseInt(lsGet(LSX)) || 0);
+const pendingCount = () => Math.max(0, VER - exportedVer());
+function updateChrome() {
+  $("verChip").textContent = "نسخه " + fa(VER);
+  $("hdrSub").textContent = `${fa(DATA.length.toLocaleString("en"))} پزشک • بدون نیاز به اینترنت`;
+  const p = pendingCount(), b = $("vBadge");
+  b.hidden = !p; b.textContent = fa(p);
+  $("lsWarn").hidden = LS_OK;
+  $("complete").options[1].textContent = `فقط اطلاعات ناقص (${fa(DATA.filter(isIncomplete).length)})`;
+}
+function showTab(t) {
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x.dataset.tab === t));
+  ["planner", "db", "versions"].forEach(n => $("tab-" + n).hidden = n !== t);
+  if (t === "versions") renderVersions();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+const OPEN = new Set();
+const MISS = [["specialty", "تخصص"], ["province", "استان"], ["city", "شهر"], ["address", "آدرس"]];
+const isIncomplete = r => MISS.some(([k]) => !r[k]);
+function netLinks(r) {
+  const q = [r.name, r.specialty, r.city].filter(Boolean).join(" ");
+  const g = t => "https://www.google.com/search?q=" + encodeURIComponent(t);
+  const L = [["جستجو در گوگل", g(q)], ["صفحه‌ی نوبت‌دهی", g(`${r.name} ${r.city || ""} site:paziresh24.com OR site:nobat.ir`)], ["نقشه و آدرس", "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(r.address ? r.name + " " + r.address : q)]];
+  return `<div class="nl"><small>تکمیل از اینترنت — در تب جدید باز می‌شود؛ نتیجه را خودتان در «ویرایش اطلاعات» وارد کنید.</small><div class="row">${L.map(([t, u]) => `<a class="lnk" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${t}</a>`).join("")}</div></div>`;
+}
+function rowHtml(r) {
+  const c = esc(r.medical_code), open = OPEN.has(r.medical_code), miss = MISS.filter(([k]) => !r[k]).map(x => x[1]);
+  return `<div class="dr${open ? " open" : ""}"><button class="dh" data-code="${c}" aria-expanded="${open}"><span class="n">${esc(r.name)}</span><span class="chip">${c}</span><span class="chip acc">${esc(r.specialty) || "تخصص ثبت نشده"}</span><span class="chev"></span></button>
+  <div class="dbd"><div class="kv">${[["province", "استان"], ["city", "شهر"], ["district", "منطقه"], ["address", "آدرس"], ["visit_days", "روزهای حضور"]].map(([k, l]) => `<div class="it"><small>${l}</small><div>${r[k] ? esc(r[k]) : '<span class="count">ثبت نشده</span>'}</div></div>`).join("")}</div>
+  ${miss.length ? `<div class="warn">اطلاعات ناقص: ${miss.join("، ")}</div>` : ""}${netLinks(r)}
+  <div class="sbar"><button class="primary" data-edit="${c}">ویرایش اطلاعات</button><button data-prof="${c}">تاریخچه‌ی این پزشک</button></div></div></div>`;
+}
+$("body").addEventListener("click", e => {
+  const ed = e.target.closest("[data-edit]"); if (ed) { openProfile(ed.dataset.edit, true); return; }
+  const pf = e.target.closest("[data-prof]"); if (pf) { openProfile(pf.dataset.prof); return; }
+  const h = e.target.closest(".dh"); if (!h) return;
+  const o = h.parentElement.classList.toggle("open"), c = h.dataset.code;
+  h.setAttribute("aria-expanded", o); o ? OPEN.add(c) : OPEN.delete(c);
+});
+
+function renderVersions() {
+  const changed = new Set(LOG.map(e => e.code)).size, p = pendingCount();
+  $("vStat").innerHTML = `<div class="s"><b>${fa(VER)}</b><small>نسخه‌ی فعلی</small></div><div class="s"><b>${fa(new Set(LOG.map(e => e.ver)).size)}</b><small>نسخه‌ی ثبت‌شده</small></div><div class="s"><b>${fa(LOG.length)}</b><small>تغییر فیلد</small></div><div class="s"><b>${fa(changed)}</b><small>پزشک ویرایش‌شده</small></div>`;
+  const pe = $("vPending");
+  pe.hidden = !p;
+  pe.textContent = `${fa(p)} نسخه بعد از آخرین خروجی ثبت شده است. برای اینکه تغییرات در فایل بماند و بتوانید به دیگران بدهید، خروجی بگیرید.`;
+  const q = norm($("vq").value);
+  const byVer = new Map();
+  LOG.filter(e => !q || norm(e.name + " " + e.code).includes(q)).forEach(e => { if (!byVer.has(e.ver)) byVer.set(e.ver, []); byVer.get(e.ver).push(e); });
+  const vs = [...byVer.keys()].sort((a, b) => b - a);
+  $("vList").innerHTML = vs.slice(0, 200).map((v, i) => {
+    const es = byVer.get(v);
+    return `<details class="vgroup" ${i === 0 ? "open" : ""}><summary><span class="chip acc">نسخه ${fa(v)}</span><span class="count">${fmtTs(es[0].ts)}</span><b>${esc(es[0].name)}</b><span class="count">${fa(es.length)} فیلد</span></summary><div class="vb">` +
+      es.map(e => `<div class="vr"><b>${esc(labOf(e.field))}</b> • کد ${esc(e.code)}<br><span class="old">${esc(e.old || "—")}</span> ← <span class="nw">${esc(e.new || "—")}</span>${e.note ? `<br><span class="count">یادداشت: ${esc(e.note)}</span>` : ""}</div>`).join("") + `</div></details>`;
+  }).join("");
+  $("vEmpty").hidden = vs.length > 0;
+  $("vReset").hidden = !rawSaved().length;
+  const st = readStale().length;
+  $("vStale").hidden = !st;
+  $("vStaleTxt").textContent = `${fa(st)} تغییر محلی شما روی نسخه‌ی قدیمی‌تری از دیتابیس ثبت شده بود و روی این نسخه اعمال نشد.`;
+}
+$("vq").addEventListener("input", renderVersions);
+
+/* ---- خروجی‌ها ---- */
+function exportXlsx() {
+  const last = new Map(); LOG.forEach(e => last.set(e.code, e.ver));
+  const head = ["نام پزشک", "کد نظام پزشکی", "تخصص", "استان", "شهر", "منطقه", "آدرس", "روزهای حضور", "نسخه‌ی آخرین تغییر"];
+  const rows = [head].concat(DATA.map(r => FIELDS.map(f => r[f] ?? "").concat([last.has(r.medical_code) ? String(last.get(r.medical_code)) : ""])));
+  const ch = [["نسخه", "تاریخ شمسی", "ساعت", "کد نظام پزشکی", "نام پزشک", "فیلد", "مقدار قبلی", "مقدار جدید", "یادداشت"]];
+  LOG.slice().sort((a, b) => a.ver - b.ver).forEach(e => {
+    const d = new Date(e.ts), o = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY);
+    ch.push([String(e.ver), fmtJ(o), pad2(d.getHours()) + ":" + pad2(d.getMinutes()), e.code, e.name, labOf(e.field), e.old ?? "", e.new ?? "", e.note || ""]);
+  });
+  download(makeXlsx([
+    { name: "دیتابیس", rows, widths: [26, 14, 16, 12, 12, 11, 60, 22, 12] },
+    { name: "تغییرات", rows: ch, widths: [8, 13, 8, 14, 26, 14, 40, 40, 30] },
+  ]), `NOVA-DB-v${VER}.xlsx`);
+  lsSet(LSX, String(VER)); updateChrome(); renderVersions();
+}
+function buildHtml() {
+  let s = PRISTINE;
+  const emb = JSON.stringify({ version: VER, rows: DATA.map(r => FIELDS.map(f => r[f] ?? "")), history: LOG }).replace(/<\//g, "<\\/");
+  const re = /^const EMB = .*\/\*@emb\*\/$/m;
+  if (!re.test(s)) throw new Error("ساختار فایل شناسایی نشد");
+  s = s.replace(re, () => `const EMB = ${emb}; /*@emb*/`);
+  return "<!DOCTYPE html>\n" + s;
+}
+function exportDb() {
+  const txt = "window.NOVA_DB=" + JSON.stringify({ version: VER, rows: DATA.map(r => FIELDS.map(f => r[f] ?? "")), history: LOG }) + ";\n";
+  download(new Blob([txt], { type: "text/javascript;charset=utf-8" }), "db.js");
+  lsSet(LSX, String(VER)); updateChrome(); renderVersions();
+}
+function exportStale() {
+  const st = readStale().sort((a, b) => a.ts - b.ts);
+  const ch = [["نسخه‌ی پایه‌ی آن زمان", "تاریخ شمسی", "ساعت", "کد نظام پزشکی", "نام پزشک", "فیلد", "مقدار قبلی", "مقدار جدید", "یادداشت"]];
+  st.forEach(e => { const d = new Date(e.ts), o = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY); ch.push([String(e.base ?? ""), fmtJ(o), pad2(d.getHours()) + ":" + pad2(d.getMinutes()), e.code, e.name, labOf(e.field), e.old ?? "", e.new ?? "", e.note || ""]); });
+  download(makeXlsx([{ name: "تغییرات اعمال‌نشده", rows: ch, widths: [12, 13, 8, 14, 26, 14, 40, 40, 30] }]), "NOVA-unapplied-changes.xlsx");
+}
+function validateDb(x) {
+  if (!x || !Number.isInteger(x.version) || !Array.isArray(x.rows) || !x.rows.length) return "ساختار فایل دیتابیس درست نیست.";
+  const seen = new Set();
+  for (const r of x.rows) {
+    if (!Array.isArray(r) || r.length !== FIELDS.length || !String(r[0] || "").trim() || !String(r[1] || "").trim()) return "ردیف نامعتبر در دیتابیس (نام یا کد نظام پزشکی خالی است).";
+    if (seen.has(String(r[1]))) return "کد نظام پزشکی تکراری در دیتابیس: " + r[1];
+    seen.add(String(r[1]));
+  }
+  return "";
+}
+$("importFile").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  let x;
+  try { x = JSON.parse((await f.text()).trim().replace(/^window\.NOVA_DB\s*=\s*/, "").replace(/;\s*$/, "")); } catch (err) { toast("فایل خوانده نشد؛ باید db.js باشد"); return; }
+  const bad = validateDb(x);
+  if (bad) { toast(bad); return; }
+  if (x.version <= BASE_VERSION) { toast(`این دیتابیس (نسخه ${fa(x.version)}) از نسخه‌ی فعلی (${fa(BASE_VERSION)}) جدیدتر نیست`); return; }
+  const lost = readSaved().length;
+  const c = overlay(`<div class="grab"></div><div class="shead"><h2>وارد کردن دیتابیس نسخه ${fa(x.version)}</h2></div><p class="hint" style="margin:0">${fa(x.rows.length)} پزشک وارد می‌شود و جایگزین دیتابیس فعلی این برنامه می‌شود.${lost ? ` <b>${fa(lost)} تغییر خروجی‌نگرفته‌ی شما در این مرورگر اعمال نخواهد شد</b> (می‌توانید بعداً به‌صورت اکسل بگیرید).` : ""}</p><div class="sbar"><button class="primary" data-act="ok">وارد کن</button><button data-act="no">انصراف</button></div>`, true);
+  c.ov._o = c;
+  c.sheet.onclick = ev => {
+    const b = ev.target.closest("[data-act]"); if (!b) return;
+    if (b.dataset.act === "no") { c.close(); return; }
+    if (!lsSet("nova_import_" + LINEAGE, JSON.stringify({ version: x.version, rows: x.rows.map(r => r.map(v => v ?? "")), history: x.history || [] }))) { toast("حافظه‌ی مرورگر اجازه نداد؛ از نسخه‌ی HTML استفاده کنید."); return; }
+    location.reload();
+  };
+};
+function exportHtml() {
+  try {
+    download(new Blob([buildHtml()], { type: "text/html;charset=utf-8" }), `NOVA_Offline_v${VER}.html`);
+    lsSet(LSX, String(VER)); updateChrome(); renderVersions();
+  } catch (e) { toast("خطا در ساخت فایل: " + e.message); }
+}
+$("xlsxDb").onclick = exportXlsx;
+$("htmlDb").onclick = exportHtml;
+$("dbJs").onclick = exportDb;
+$("importDb").onclick = () => $("importFile").click();
+$("staleBtn").onclick = exportStale;
+const ONLINE = !!window.NOVA_DB;
+$("htmlDb").hidden = ONLINE; $("importDb").hidden = ONLINE;
+$("vHint").textContent = ONLINE ? "برای انتشار برای همه: فایل db.js را دانلود و در مخزن گیت‌هاب جایگزین کنید؛ همه‌ی کاربران بار بعدی دیتابیس جدید را می‌بینند. اکسل شامل شیت «دیتابیس» و شیت جداگانه‌ی «تغییرات» است." : "اکسل شامل شیت «دیتابیس» و شیت «تغییرات» است. «نسخه جدید برنامه» همین فایل را با دیتابیس به‌روز می‌سازد؛ فایل db.js فقط دیتابیس است و با «وارد کردن دیتابیس» در نسخه‌ی دیگر برنامه جایگزین می‌شود.";
+$("resetLocal").onclick = () => {
+  const c = overlay(`<div class="grab"></div><div class="shead"><h2>بازنشانی به نسخه‌ی این فایل؟</h2></div><p class="hint" style="margin:0">همه‌ی تغییرات ذخیره‌شده در این مرورگر (نسخه‌های بالاتر از ${fa(BASE_VERSION)}) پاک می‌شود. این کار برگشت‌پذیر نیست.</p><div class="sbar"><button class="danger" data-act="ok">بله، پاک شود</button><button class="primary" data-act="no">انصراف</button></div>`, true);
+  c.ov._o = c;
+  c.sheet.onclick = e => { const b = e.target.closest("[data-act]"); if (!b) return; if (b.dataset.act === "ok") { lsSet(LSK, "[]"); lsSet("nova_import_" + LINEAGE, ""); lsSet(LSX, String(BASE_VERSION)); location.reload(); } else c.close(); };
+};
+window.addEventListener("beforeunload", e => { if (!LS_OK && pendingCount()) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ---- تم ---- */
+const THEMES = ["light", "dark", "blue", "pink"];
+function setTheme(t) { document.documentElement.dataset.theme = t; lsSet("nova_theme", t); }
+$("themeBtn").onclick = () => setTheme(THEMES[(THEMES.indexOf(document.documentElement.dataset.theme) + 1) % THEMES.length]);
+setTheme(THEMES.includes(lsGet("nova_theme")) ? lsGet("nova_theme") : "light");
+updateChrome();
+
+/* ---- بازخورد از طریق ایمیل ---- */
+(() => {
+  const a = $("fbBtn"), MAIL = (window.NOVA_CONFIG && window.NOVA_CONFIG.feedbackEmail) || "__FEEDBACK_EMAIL__";
+  if (/__/.test(MAIL)) { a.hidden = true; return; }
+  const upd = () => {
+    const subj = `بازخورد نووا — نسخه ${VER}`;
+    const body = `سلام،\n\n[باگ یا پیشنهاد خود را اینجا بنویسید]\n\n— — —\nنسخه‌ی دیتابیس: ${VER}\nمرورگر: ${navigator.userAgent}\n`;
+    a.href = `mailto:${MAIL}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  };
+  upd();
+  a.addEventListener("click", () => { upd(); toast("اگر برنامه‌ی ایمیل باز نشد، به این نشانی بنویسید: " + MAIL); });
+})();
+
+renderDb();
+
+/* Copyright (c) 2026 halishirii. All rights reserved. */
+</script>
+<!--
+  Copyright (c) 2026 halishirii. All rights reserved.
+-->
+<script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});</script>
+</body>
+</html>
